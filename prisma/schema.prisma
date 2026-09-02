@@ -1,26 +1,64 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
-generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
-}
-
 datasource db {
   provider = "postgresql"
 }
 
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma/client"
+}
+
 model Client {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   name        String
-  email       String   @unique
-  companyName String
+  email       String    @unique
+  companyName String    @map("company_name")
   phone       String?
-  address     String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  address     String?   @db.Text
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  invoices    Invoice[]
 
   @@map("clients")
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PENDING
+  PAID
+  OVERDUE
+}
+
+model Invoice {
+  id            String          @id @default(cuid())
+  invoiceNumber String          @unique @map("invoice_number")
+  clientId      String          @map("client_id")
+  client        Client          @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  issueDate     DateTime        @map("issue_date")
+  dueDate       DateTime        @map("due_date")
+  subtotal      Float
+  taxRate       Float           @map("tax_rate")
+  discount      Float
+  totalAmount   Float           @map("total_amount")
+  status        InvoiceStatus   @default(DRAFT)
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+
+  items         InvoiceItem[]
+
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id          String   @id @default(cuid())
+  invoiceId   String   @map("invoice_id")
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  description String
+  quantity    Int
+  unitPrice   Float    @map("unit_price")
+  amount      Float
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("invoice_items")
 }
