@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { InvoiceStatus } from '@/generated/prisma/client';
@@ -65,8 +66,11 @@ export default function InvoiceTable({
         <tbody className="divide-y divide-slate-200">
           {invoices.map((invoice) => (
             <tr key={invoice.id} className="hover:bg-slate-50/80 transition-colors">
-              <td className="px-6 py-4 font-semibold text-slate-900">
-                {invoice.invoiceNumber}
+              <td className="px-6 py-4 font-semibold text-indigo-600 hover:text-indigo-800">
+                {/* Tautan Navigasi Otomatis ke /invoices/[id] */}
+                <Link href={`/invoices/${invoice.id}`}>
+                  {invoice.invoiceNumber}
+                </Link>
               </td>
               <td className="px-6 py-4">
                 <div className="font-medium text-slate-800">
@@ -87,6 +91,12 @@ export default function InvoiceTable({
                 <Badge status={invoice.status} />
               </td>
               <td className="px-6 py-4 text-right space-x-2">
+                <Link href={`/invoices/${invoice.id}`}>
+                  <Button variant="outline" size="sm">
+                    View
+                  </Button>
+                </Link>
+
                 <select
                   value={invoice.status}
                   onChange={(e) =>
