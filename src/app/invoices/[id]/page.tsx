@@ -2,6 +2,7 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getInvoiceById } from '@/app/actions/invoice'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 
 interface PublicInvoicePageProps {
 	params: Promise<{
@@ -43,7 +44,32 @@ export default async function PublicInvoicePage({
 	return (
 		<div className="min-h-screen bg-slate-100 py-8 px-4 sm:px-6 lg:px-8">
 			<div className="mx-auto max-w-3xl">
-				{/* Main Invoice Card (PDF/Print View Target) */}
+				{/* Top Action Bar */}
+				<div className="mb-6 flex items-center justify-between gap-4">
+					<div>
+						<h1 className="text-xl font-bold text-slate-900">
+							Official Invoice
+						</h1>
+						<p className="text-xs text-slate-500">
+							Issued by Nexus Media Digital
+						</p>
+					</div>
+
+					<div className="flex items-center gap-3">
+						{/* Download PDF Trigger Button */}
+						<a
+							href={`/api/invoices/${invoice.id}/pdf`}
+							target="_blank"
+							rel="noopener noreferrer"
+							download={`Invoice-${invoice.invoiceNumber.replace(/\//g, '_')}.pdf`}>
+							<Button variant="primary" size="sm">
+								Download PDF
+							</Button>
+						</a>
+					</div>
+				</div>
+
+				{/* Main Invoice Card View */}
 				<div className="overflow-hidden rounded-2xl bg-white shadow-xl border border-slate-200">
 					{/* Header Banner */}
 					<div className="bg-slate-900 p-6 sm:p-8 text-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -53,9 +79,9 @@ export default async function PublicInvoicePage({
 									N
 								</div>
 								<div>
-									<h1 className="text-xl font-bold tracking-tight">
+									<h2 className="text-xl font-bold tracking-tight">
 										Nexus Media Digital
-									</h1>
+									</h2>
 									<p className="text-xs text-slate-400">
 										Creative & Digital Marketing Agency
 									</p>
