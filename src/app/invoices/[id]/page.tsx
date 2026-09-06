@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { getInvoiceById } from '@/app/actions/invoice'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import SendEmailButton from '@/components/invoices/SendEmailButton'
 
 interface PublicInvoicePageProps {
 	params: Promise<{
@@ -41,11 +42,26 @@ export default async function PublicInvoicePage({
 
 	const invoice = invoiceRes.data
 
+	const baseUrl = process.env.BASE_URL || 'http://localhost:3000'
+	const invoicePublicUrl = `${baseUrl}/invoices/${invoice.id}`
+
+	// Format pesan otomatis WhatsApp
+	const shareMessage = encodeURIComponent(
+		`Halo ${invoice.client.name} (${invoice.client.companyName}),\n\nBerikut adalah tagihan faktur resmi dari Nexus Media Digital:\n*Nomor Invoice:* ${invoice.invoiceNumber}\n*Total Tagihan:* Rp ${invoice.totalAmount.toLocaleString('id-ID')}\n*Jatuh Tempo:* ${new Date(invoice.dueDate).toLocaleDateString('id-ID')}\n\nSilakan lihat rincian dan melakukan pembayaran melalui tautan berikut:\n${invoicePublicUrl}/invoices/${invoice.id}\n\nTerima kasih!`,
+	)
+
+	const whatsappPhone = invoice.client.phone
+		? invoice.client.phone.replace(/[^0-9]/g, '')
+		: ''
+	const whatsappUrl = whatsappPhone
+		? `https://wa.me/${whatsappPhone}?text=${shareMessage}`
+		: `https://wa.me/?text=${shareMessage}`
+
 	return (
 		<div className="min-h-screen bg-slate-100 py-8 px-4 sm:px-6 lg:px-8">
 			<div className="mx-auto max-w-3xl">
 				{/* Top Action Bar */}
-				<div className="mb-6 flex items-center justify-between gap-4">
+				<div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 					<div>
 						<h1 className="text-xl font-bold text-slate-900">
 							Official Invoice
@@ -56,11 +72,18 @@ export default async function PublicInvoicePage({
 					</div>
 
 					<div className="flex items-center gap-3">
+						<SendEmailButton invoiceId={invoice.id} />
+
+						{/* Share to WhatsApp Button */}
+						<a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+							<Button variant="success" size="sm">
+								Share to WhatsApp
+							</Button>
+						</a>
+
 						{/* Download PDF Trigger Button */}
 						<a
 							href={`/api/invoices/${invoice.id}/pdf`}
-							target="_blank"
-							rel="noopener noreferrer"
 							download={`Invoice-${invoice.invoiceNumber.replace(/\//g, '_')}.pdf`}>
 							<Button variant="primary" size="sm">
 								Download PDF

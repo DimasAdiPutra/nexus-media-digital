@@ -1,7 +1,7 @@
 import React from 'react'
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-	variant?: 'primary' | 'secondary' | 'danger' | 'outline'
+	variant?: 'primary' | 'secondary' | 'danger' | 'outline' | 'success'
 	size?: 'sm' | 'md' | 'lg'
 	isLoading?: boolean
 }
@@ -30,6 +30,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 			danger: 'bg-rose-600 text-white hover:bg-rose-700 focus:ring-rose-500',
 			outline:
 				'border border-slate-300 text-slate-700 hover:bg-slate-50 focus:ring-indigo-500',
+			success:
+				'bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-500 shadow-sm font-semibold',
 		}
 
 		const sizes = {
@@ -42,7 +44,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 			<button
 				ref={ref}
 				disabled={disabled || isLoading}
-				className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`}
+				className={`${className} ${baseStyles} ${variants[variant]} ${sizes[size]}`}
 				{...props}>
 				{isLoading ? (
 					<span className="flex items-center gap-2">
