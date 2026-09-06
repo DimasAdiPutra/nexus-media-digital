@@ -49,7 +49,9 @@ export default function SendEmailButton({ invoiceId }: SendEmailButtonProps) {
 							? 'text-emerald-600'
 							: 'text-rose-600'
 					}`}>
-					{statusMessage.text}
+					{statusMessage.type === 'success'
+						? statusMessage.text
+						: 'Failed to send email'}
 				</span>
 			)}
 		</div>
