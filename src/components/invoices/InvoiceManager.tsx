@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useTransition } from 'react'
 import Link from 'next/link'
+import { exportInvoicesToCSV } from '@/lib/export'
 import {
 	getInvoices,
 	deleteInvoice,
@@ -19,7 +20,7 @@ export default function InvoiceManager() {
 	const [loading, setLoading] = useState<boolean>(true)
 	const [searchQuery, setSearchQuery] = useState<string>('')
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const [isPending, startTransition] = useTransition();
+	const [isPending, startTransition] = useTransition()
 
 	const fetchInvoices = useCallback(async () => {
 		try {
@@ -78,6 +79,23 @@ export default function InvoiceManager() {
 			inv.client.name.toLowerCase().includes(searchQuery.toLowerCase()),
 	)
 
+	const handleExport = () => {
+		const exportData = filteredInvoices.map((inv) => ({
+			invoiceNumber: inv.invoiceNumber,
+			clientName: inv.client.name,
+			companyName: inv.client.companyName,
+			issueDate: inv.issueDate,
+			dueDate: inv.dueDate,
+			subtotal: inv.totalAmount, // or calculate exact subtotal
+			taxRate: 0,
+			discount: 0,
+			totalAmount: inv.totalAmount,
+			status: inv.status,
+		}))
+
+		exportInvoicesToCSV(exportData)
+	}
+
 	return (
 		<>
 			<div className="mb-6 flex items-center justify-between gap-4">
@@ -90,6 +108,9 @@ export default function InvoiceManager() {
 					/>
 				</div>
 
+				<Button variant="outline" onClick={handleExport}>
+					📊 Export CSV/Excel
+				</Button>
 				<Link href="/invoices/create">
 					<Button variant="primary">+ Create New Invoice</Button>
 				</Link>
